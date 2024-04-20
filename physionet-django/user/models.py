@@ -1218,13 +1218,14 @@ class Training(models.Model):
     def is_valid(self):
         if self.status == TrainingStatus.ACCEPTED:
             if self.training_type.required_field == RequiredField.PLATFORM:
-                associated_course = Course.objects.filter(training=self).first()
-                return self.process_datetime + associated_course.valid_duration >= timezone.now()
-            else:
-                if not self.training_type.valid_duration:
-                    return False
-                else:
-                    return self.process_datetime + self.training_type.valid_duration >= timezone.now()
+                associated_course = Course.objects.filter(trainings=self).first()
+                if associated_course:
+                    return self.process_datetime + associated_course.valid_duration >= timezone.now()
+
+            if not self.training_type.valid_duration:
+                return False
+
+            return self.process_datetime + self.training_type.valid_duration >= timezone.now()
 
     def is_expired(self):
         """checks if it has exceeded the valid period (process_time + duration)
@@ -1232,7 +1233,7 @@ class Training(models.Model):
         """
         if self.status == TrainingStatus.ACCEPTED:
             if self.training_type.required_field == RequiredField.PLATFORM:
-                associated_course = Course.objects.filter(training=self).first()
+                associated_course = Course.objects.filter(trainings=self).first()
                 return self.process_datetime + associated_course.valid_duration < timezone.now()
             else:
                 if not self.training_type.valid_duration:
