@@ -284,7 +284,7 @@ def submission_info(request, project_slug):
     authors, author_emails, storage_info, edit_logs, copyedit_logs, latest_version = project.info_card()
 
     data = request.POST or None
-    reassign_editor_form = forms.ReassignEditorForm(user, data=data)
+    reassign_editor_form = forms.ReassignEditorForm(project=project, data=data)
     embargo_form = forms.EmbargoFilesDaysForm()
     passphrase = ''
     anonymous_url = project.get_anonymous_url()
@@ -341,7 +341,7 @@ def edit_submission(request, project_slug, *args, **kwargs):
     except EditLog.DoesNotExist:
         return redirect('editor_home')
 
-    reassign_editor_form = forms.ReassignEditorForm(request.user)
+    reassign_editor_form = forms.ReassignEditorForm(project=project)
     embargo_form = forms.EmbargoFilesDaysForm()
 
     # The user must be the editor
@@ -395,7 +395,7 @@ def copyedit_submission(request, project_slug, *args, **kwargs):
         return redirect('editor_home')
 
     copyedit_log = project.copyedit_logs.get(complete_datetime=None)
-    reassign_editor_form = forms.ReassignEditorForm(request.user)
+    reassign_editor_form = forms.ReassignEditorForm(project=project)
     embargo_form = forms.EmbargoFilesDaysForm()
 
     # Metadata forms and formsets
@@ -583,7 +583,7 @@ def awaiting_authors(request, project_slug, *args, **kwargs):
     authors, author_emails, storage_info, edit_logs, copyedit_logs, latest_version = project.info_card()
     outstanding_emails = ';'.join([a.user.email for a in authors.filter(
         approval_datetime=None)])
-    reassign_editor_form = forms.ReassignEditorForm(request.user)
+    reassign_editor_form = forms.ReassignEditorForm(project=project)
     embargo_form = forms.EmbargoFilesDaysForm()
 
     if request.method == 'POST':
@@ -644,7 +644,7 @@ def publish_submission(request, project_slug, *args, **kwargs):
     if settings.SYSTEM_MAINTENANCE_NO_UPLOAD:
         raise ServiceUnavailable()
 
-    reassign_editor_form = forms.ReassignEditorForm(request.user)
+    reassign_editor_form = forms.ReassignEditorForm(project=project)
     embargo_form = forms.EmbargoFilesDaysForm()
     authors, author_emails, storage_info, edit_logs, copyedit_logs, latest_version = project.info_card()
     if request.method == 'POST':
